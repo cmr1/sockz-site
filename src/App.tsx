@@ -13,7 +13,7 @@ function App() {
         </p>
         <a
           className="App-link"
-          href="https://github.com/cmr1/ts-sockz"
+          href="https://github.com/cmr1/ts-sockz#ts-sockz"
           target="_blank"
           rel="noopener noreferrer"
         >
