@@ -8,7 +8,7 @@ const Footer = ({ auth, authorized, updateAuth }) => {
   return (
     <div className="Footer">
       <footer className="App-footer">
-        {auth && authorized && <Button color='warning' onClick={() => updateAuth(null)}>Logout</Button>}
+        {/* {auth && authorized && <Button color='warning' onClick={() => updateAuth(null)}>Logout</Button>} */}
         <a
           className="App-link"
           href="https://github.com/cmr1/ts-sockz#ts-sockz"

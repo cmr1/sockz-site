@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import Closed from './components/Closed';
 import Console from './components/Console';
 import Footer from './components/Footer';
 import Login from './components/Login';
@@ -18,16 +19,30 @@ const App = () => {
   const [ auth, setAuth ] = useState<string | null>(null);
   // const [ auth, setAuth ] = useState(localStorage.getItem('auth'));
   const [ alerts, setAlerts ] = useState<AppAlert[]>([]);
+  const [ closed, setClosed ] = useState(false);
   const [ authorized, setAuthorized ] = useState(false);
   const [ consoleData, setConsoleData ] = useState('');
   const [ socketUrl, setSocketUrl ] = useState('wss://localhost:8080');
-  const [ messageHistory, setMessageHistory ] = useState([]);
+
+  const debug = (name: string) => (e: any) => console.debug(`DEBUG ${name}`, e);
 
   const {
     sendMessage,
     lastMessage,
     readyState,
-  } = useWebSocket(socketUrl);
+  } = useWebSocket(socketUrl, {
+    onClose: (e: CloseEvent) => {
+      debug('onClose')(e);
+
+      setClosed(true);
+      setAuth(null);
+      setAuthorized(false);
+      setAlerts([]);
+    },
+    onError: debug('onError'),
+    onMessage: debug('onMessage'),
+    onOpen: debug('onOpen')
+  });
 
   useEffect(() => {
     console.log('Authorized', authorized);
@@ -61,7 +76,7 @@ const App = () => {
         setConsoleData(prev => prev + lastMessage.data);
       }
     }
-  }, [ auth, lastMessage, setMessageHistory ]);
+  }, [ auth, lastMessage ]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -109,7 +124,9 @@ const App = () => {
       <Container >
         <Row>
           <Col>
-            {auth && authorized ? <Console {...sendProps} /> : <Login {...sendProps} />}
+            {auth && authorized ? <Console {...sendProps} /> : (
+              closed ? <Closed /> : <Login {...sendProps} />
+            )}
           </Col>
         </Row>
         <Row>
