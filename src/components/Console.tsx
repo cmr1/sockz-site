@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import { Button } from 'reactstrap';
 import './Console.scss';
 
 const Console = ({ consoleData, sendMessage, setConsoleData }) => {

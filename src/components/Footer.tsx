@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from 'react';
-// import logo from './logo.svg';
-import { Button } from 'reactstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
 import './Footer.scss';
 
 const Footer = ({ auth, authorized, updateAuth }) => {

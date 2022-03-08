@@ -47,13 +47,7 @@ const App = () => {
   });
 
   useEffect(() => {
-    console.log('Authorized', authorized);
-  }, [ authorized ])
-
-  useEffect(() => {
     if (lastMessage !== null) {
-      // console.log('lastMessage', lastMessage.data);
-
       const div = document.createElement("div");
       div.innerHTML = lastMessage.data;
       const text = div.textContent || div.innerText || '';
@@ -73,8 +67,6 @@ const App = () => {
           body: lastMessage.data
         }]);
       } else {
-        console.log('Handle response', lastMessage.data);
-
         setConsoleData(prev => prev + lastMessage.data);
       }
     }

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 // import logo from './logo.svg';
-import { Button, Form, FormGroup, FormFeedback, FormText, Label, Input, Container, Row, Col } from 'reactstrap';
+import { Button, Form, FormGroup, FormText, Label, Input, Container, Row, Col } from 'reactstrap';
 import './Login.scss';
 
 const Login = ({ updateAuth }) => {
