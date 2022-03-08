@@ -4,13 +4,16 @@ import { Button, Form, FormGroup, FormText, Label, Input, Container, Row, Col } 
 import './Login.scss';
 
 const Login = ({ updateAuth }) => {
-  const [ key, setKey ] = useState<string | null>(null);
-  const [ cert, setCert ] = useState<string | null>(null);
+  const [ key, setKey ] = useState<string | null>(localStorage.getItem('clientKey'));
+  const [ cert, setCert ] = useState<string | null>(localStorage.getItem('clientCert'));
 
   const onSubmit = (event) => {
     event.preventDefault();
 
     if (key && cert) {
+      localStorage.setItem('clientKey', key);
+      localStorage.setItem('clientCert', cert);
+
       updateAuth([key,cert].map(window.btoa).join(':'));
     }
 
@@ -32,6 +35,7 @@ const Login = ({ updateAuth }) => {
                   id='clientKey'
                   name='clientKey'
                   type='textarea'
+                  defaultValue={key || ''}
                   placeholder='PASTE KEY HERE'
                   onChange={(e) => setKey(e.target.value)}
                 />
@@ -49,6 +53,7 @@ const Login = ({ updateAuth }) => {
                   id='clientCert'
                   name='clientCert'
                   type='textarea'
+                  defaultValue={cert || ''}
                   placeholder='PASTE CERT HERE'
                   onChange={(e) => setCert(e.target.value)}
                 />
