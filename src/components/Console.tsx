@@ -54,7 +54,12 @@ const Console = () => {
         }
         break;
       default:
-        console.debug('Ignore special key', event);
+        if (event.key.length === 1) {
+          append(event.key);
+          setBuff([...buff, event.key]);
+        } else {
+          console.debug('Ignore special key', event);
+        }
         break;
     }
   }, [ buff ]);
