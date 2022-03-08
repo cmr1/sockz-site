@@ -1,16 +1,13 @@
 import React from 'react';
-import logo from './logo.svg';
+import Console from './components/Console';
+// import logo from './logo.svg';
 import './App.css';
 
-function App() {
+const App = () => {
   return (
     <div className="App">
       <header className="App-header">
         <h1>sockz</h1>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Coming soon...
-        </p>
         <a
           className="App-link"
           href="https://github.com/cmr1/ts-sockz#ts-sockz"
@@ -19,6 +16,7 @@ function App() {
         >
           View on GitHub
         </a>
+        <Console />
       </header>
     </div>
   );
