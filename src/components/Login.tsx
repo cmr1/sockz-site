@@ -10,8 +10,6 @@ const Login = ({ updateAuth }) => {
   const onSubmit = (event) => {
     event.preventDefault();
 
-    console.log('Login.onSubmit()', { cert, key });
-
     if (key && cert) {
       updateAuth([key,cert].map(window.btoa).join(':'));
     }

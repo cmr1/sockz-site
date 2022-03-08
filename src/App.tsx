@@ -4,7 +4,7 @@ import Console from './components/Console';
 import Footer from './components/Footer';
 import Login from './components/Login';
 // import logo from './logo.svg';
-import { Container, Row, Col, Toast, ToastHeader, ToastBody, Spinner } from 'reactstrap';
+import { Container, Row, Col, Toast, ToastHeader, ToastBody } from 'reactstrap';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.scss';
@@ -15,6 +15,8 @@ interface AppAlert {
   header?: string;
 }
 
+const WSS_URL = 'wss://localhost:8080';
+
 const App = () => {
   const [ auth, setAuth ] = useState<string | null>(null);
   // const [ auth, setAuth ] = useState(localStorage.getItem('auth'));
@@ -22,7 +24,7 @@ const App = () => {
   const [ closed, setClosed ] = useState(false);
   const [ authorized, setAuthorized ] = useState(false);
   const [ consoleData, setConsoleData ] = useState('');
-  const [ socketUrl, setSocketUrl ] = useState('wss://localhost:8080');
+  // const [ socketUrl, setSocketUrl ] = useState('wss://localhost:8080');
 
   const debug = (name: string) => (e: any) => console.debug(`DEBUG ${name}`, e);
 
@@ -30,7 +32,7 @@ const App = () => {
     sendMessage,
     lastMessage,
     readyState,
-  } = useWebSocket(socketUrl, {
+  } = useWebSocket(WSS_URL, {
     onClose: (e: CloseEvent) => {
       debug('onClose')(e);
 
@@ -95,10 +97,6 @@ const App = () => {
     sendMessage(`auth:${auth}`);
   }, [ auth, sendMessage ]);
 
-  // const command = useCallback((cmd) => {
-  //   sendMessage(cmd);
-  // })
-
   const sendProps = {
     auth,
     authorized,
@@ -111,7 +109,6 @@ const App = () => {
 
   useEffect(() => {
     if (auth) {
-      // console.log('Auth changed: \n' + auth);
       authorize();
     }
   }, [ auth, authorize ]);

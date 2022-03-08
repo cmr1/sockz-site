@@ -7,10 +7,30 @@ const Console = ({ consoleData, sendMessage, setConsoleData }) => {
   const [ buff, setBuff ] = useState<string[]>([]);
   const [ active, setActive ] = useState(false);
 
-  const remove = (num?: number) => setConsoleData((current) => current.slice(0, num || -1));
-  const append = (data: string) => setConsoleData((current) => current + data);
+  const remove = useCallback((num?: number) => {
+    setConsoleData((current) => current.slice(0, num || -1));
+  }, [ setConsoleData ]);
+
+  const append = useCallback((data: string) => {
+    setConsoleData((current) => current + data)
+  }, [ setConsoleData ]);
+
   const activate = () => setActive(true);
   const deactivate = () => setActive(false);
+
+  function scroll() {
+    const elem = document.getElementById('console');
+
+    if (elem) {
+      elem.scrollTop = elem.scrollHeight;
+    } else {
+      console.warn('Cannot find #console to scroll to');
+    }
+  }
+
+  useEffect(() => {
+    scroll();
+  }, [ consoleData ]);
 
   useEffect(() => {
     // Triggered when use leaves page/tab
@@ -61,7 +81,7 @@ const Console = ({ consoleData, sendMessage, setConsoleData }) => {
         }
         break;
     }
-  }, [ buff ]);
+  }, [ buff, append ]);
 
   const handleKey = useCallback((event: KeyboardEvent) => {
     switch (event.key) {
@@ -76,6 +96,7 @@ const Console = ({ consoleData, sendMessage, setConsoleData }) => {
         sendMessage(buff.join(''));
         append(`\r\n`);
         setBuff([]);
+        scroll();
         break;
       case 'Backspace':
         if (buff.length) {
@@ -110,7 +131,7 @@ const Console = ({ consoleData, sendMessage, setConsoleData }) => {
 
   return (
     <div className={`Console ${active ? 'active' : ''}`}>
-      <pre ref={ref} onClick={() => setActive(true)} dangerouslySetInnerHTML={{ __html: consoleData }}></pre>
+      <pre id='console' ref={ref} onClick={() => setActive(true)} dangerouslySetInnerHTML={{ __html: consoleData }}></pre>
     </div>
   );
 }
