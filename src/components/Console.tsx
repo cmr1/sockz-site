@@ -1,15 +1,14 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
+import { Button } from 'reactstrap';
 import './Console.scss';
 
-const Console = () => {
+const Console = ({ consoleData, sendMessage, setConsoleData }) => {
   const ref = useRef<HTMLPreElement>(null);
   const [ buff, setBuff ] = useState<string[]>([]);
   const [ active, setActive ] = useState(false);
-  // TODO: Remove test prompt
-  const [ content, setContent ] = useState('$ ');
 
-  const remove = (num?: number) => setContent((current) => current.slice(0, num || -1));
-  const append = (data: string) => setContent((current) => current + data);
+  const remove = (num?: number) => setConsoleData((current) => current.slice(0, num || -1));
+  const append = (data: string) => setConsoleData((current) => current + data);
   const activate = () => setActive(true);
   const deactivate = () => setActive(false);
 
@@ -74,8 +73,8 @@ const Console = () => {
       //   break;
       case 'Enter':
         console.debug('Send cmd', buff.join(''));
-        // TODO: Remove test prompt suffix
-        append(`\r\n$ `);
+        sendMessage(buff.join(''));
+        append(`\r\n`);
         setBuff([]);
         break;
       case 'Backspace':
@@ -95,7 +94,7 @@ const Console = () => {
         }
         break;
     }
-  }, [ buff, handleSpecialKey ]);
+  }, [ buff, sendMessage, append, remove, handleSpecialKey ]);
 
   useEffect(() => {
     if (active) {
@@ -111,7 +110,7 @@ const Console = () => {
 
   return (
     <div className={`Console ${active ? 'active' : ''}`}>
-      <pre ref={ref} onClick={() => setActive(true)} dangerouslySetInnerHTML={{ __html: content }}></pre>
+      <pre ref={ref} onClick={() => setActive(true)} dangerouslySetInnerHTML={{ __html: consoleData }}></pre>
     </div>
   );
 }
