@@ -11,6 +11,10 @@
     overflow-y: scroll;
     opacity: 0.35;
     text-align: left;
+    white-space: pre-wrap;
+    // overflow-x: unset;
+    // overflow-wrap: break-word;
+    // word-wrap: break-word;
 
     &:after {
       content: '[click here]';

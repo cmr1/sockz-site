@@ -15,7 +15,8 @@ interface AppAlert {
   header?: string;
 }
 
-const WSS_URL = 'wss://localhost:8080';
+// const WSS_URL = 'wss://localhost:8080';
+const WSS_URL = 'wss://test.sockz.io:8080';
 
 const App = () => {
   const [ auth, setAuth ] = useState<string | null>(null);
