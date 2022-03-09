@@ -4,7 +4,7 @@ import Console from './components/Console';
 import Footer from './components/Footer';
 import Login from './components/Login';
 // import logo from './logo.svg';
-import { Container, Row, Col, Toast, ToastHeader, ToastBody, Spinner, Badge } from 'reactstrap';
+import { Container, Row, Col, Toast, ToastHeader, ToastBody, Spinner } from 'reactstrap';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.scss';
@@ -93,7 +93,7 @@ const App = () => {
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
-  async function healthCheck() {
+  const healthCheck = useCallback(async () => {
     setAlerts([{
       header: connectionStatus,
       icon: <Spinner size='sm'>Loading...</Spinner>,
@@ -119,11 +119,11 @@ const App = () => {
         body: `<span class="badge bg-primary">${REACT_APP_SOCKZ_HOST}</span> is running`
       }]);
     }
-  }
+  }, [ connectionStatus ]);
 
   useEffect(() => {
     healthCheck();
-  }, []);
+  }, [ healthCheck ]); 
 
   useEffect(() => {
     if (lastMessage !== null) {
