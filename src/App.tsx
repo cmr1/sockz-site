@@ -4,10 +4,17 @@ import Console from './components/Console';
 import Footer from './components/Footer';
 import Login from './components/Login';
 // import logo from './logo.svg';
-import { Container, Row, Col, Toast, ToastHeader, ToastBody } from 'reactstrap';
+import { Container, Row, Col, Toast, ToastHeader, ToastBody, Spinner, Badge } from 'reactstrap';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.scss';
+
+const { REACT_APP_SOCKZ_HOST = 'localhost:8080' } = process.env;
+
+// const WSS_URL = 'wss://localhost:8080';
+// const WSS_URL = 'wss://test.sockz.io:8080';
+const WSS_URL = `wss://${REACT_APP_SOCKZ_HOST}`;
+const WEB_URL = `https://${REACT_APP_SOCKZ_HOST}`;
 
 interface AppAlert {
   body: string;
@@ -15,14 +22,41 @@ interface AppAlert {
   header?: string;
 }
 
-// const WSS_URL = 'wss://localhost:8080';
-const WSS_URL = 'wss://test.sockz.io:8080';
+interface fetchWithTimeoutOptions extends RequestInit {
+  timeout?: number;
+}
+
+async function fetchWithTimeout(resource, options: fetchWithTimeoutOptions = {}) {
+  const { timeout = 8000 } = options;
+
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  const response = await fetch(resource, {
+    ...options,
+    signal: controller.signal
+  });
+  clearTimeout(id);
+  return response;
+}
+
+async function healthy() {
+  try {
+    const res = await fetchWithTimeout(`${WEB_URL}/health`, { timeout: 5000 });
+    const data = await res.json();
+    return !!data;
+  } catch (err) {
+    return false;
+  }
+}
 
 const App = () => {
+  // TODO: Set in state and allow dynamic change/reconnect to another host?
+  // const [ host, setHost ] = useState(REACT_APP_SOCKZ_HOST);
   const [ auth, setAuth ] = useState<string | null>(null);
   // const [ auth, setAuth ] = useState(localStorage.getItem('auth'));
   const [ alerts, setAlerts ] = useState<AppAlert[]>([]);
-  const [ closed, setClosed ] = useState(false);
+  const [ closed, setClosed ] = useState(true);
+  const [ closedText, setClosedText ] = useState('Not Connected.');
   const [ authorized, setAuthorized ] = useState(false);
   const [ consoleData, setConsoleData ] = useState('');
   // const [ socketUrl, setSocketUrl ] = useState('wss://localhost:8080');
@@ -40,12 +74,56 @@ const App = () => {
       setClosed(true);
       setAuth(null);
       setAuthorized(false);
+      setClosedText('Connection Closed. Refresh to reconnect.');
       setAlerts([]);
     },
     onError: debug('onError'),
     onMessage: debug('onMessage'),
-    onOpen: debug('onOpen')
+    onOpen: (e: Event) => {
+      debug('onOpen')(e);
+      healthCheck();
+    }
   });
+
+  const connectionStatus = {
+    [ReadyState.CONNECTING]: 'Connecting',
+    [ReadyState.OPEN]: 'Open',
+    [ReadyState.CLOSING]: 'Closing',
+    [ReadyState.CLOSED]: 'Closed',
+    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+  }[readyState];
+
+  async function healthCheck() {
+    setAlerts([{
+      header: connectionStatus,
+      icon: <Spinner size='sm'>Loading...</Spinner>,
+      body: `Waiting for: <span class="badge bg-primary">${REACT_APP_SOCKZ_HOST}</span>`
+    }]);
+
+    const alive = await healthy();
+
+    if (!alive) {
+      setAuth(null);
+      setAuthorized(false);
+      setClosed(true);
+      setAlerts([{
+        header: `Server failed health check`,
+        icon: <span>💔</span>,
+        body: `<span class="badge bg-danger">${REACT_APP_SOCKZ_HOST}</span> is not responding`
+      }])
+    } else {
+      setClosed(false);
+      setAlerts([{
+        header: `Server is running`,
+        icon: <span>✅</span>,
+        body: `<span class="badge bg-primary">${REACT_APP_SOCKZ_HOST}</span> is running`
+      }]);
+    }
+  }
+
+  useEffect(() => {
+    healthCheck();
+  }, []);
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -58,28 +136,21 @@ const App = () => {
         setAuthorized(true);
         setAlerts([{
           header: 'Welcome!',
-          icon: 'success',
+          icon: <span>👤</span>,
           body: lastMessage.data
         }]);
       } else if (/^(Unauthorized|Invalid)/i.test(data)) {
-        setAlerts([{
+        setAlerts(prev => prev.concat([{
           header: 'Error!',
-          icon: 'danger',
+          icon: <span>🔥</span>,
           body: lastMessage.data
-        }]);
+        }]));
       } else {
         setConsoleData(prev => prev + lastMessage.data);
       }
     }
   }, [ auth, lastMessage ]);
 
-  const connectionStatus = {
-    [ReadyState.CONNECTING]: 'Connecting',
-    [ReadyState.OPEN]: 'Open',
-    [ReadyState.CLOSING]: 'Closing',
-    [ReadyState.CLOSED]: 'Closed',
-    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  }[readyState];
 
   const updateAuth = (auth: string) => {
     setAuth(auth);
@@ -115,7 +186,7 @@ const App = () => {
         <Row>
           <Col>
             {auth && authorized ? <Console {...sendProps} /> : (
-              closed ? <Closed /> : <Login {...sendProps} />
+              closed ? <Closed {...{ closedText }} /> : <Login {...sendProps} />
             )}
           </Col>
         </Row>
@@ -131,7 +202,7 @@ const App = () => {
             <ToastHeader icon={alert.icon}>
               {alert.header || connectionStatus}
             </ToastHeader>
-            <ToastBody>
+            <ToastBody className='text-secondary'>
               <div dangerouslySetInnerHTML={{ __html: alert.body }}></div>
             </ToastBody>
           </Toast>

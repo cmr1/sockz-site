@@ -1,10 +1,10 @@
 import React from 'react';
 import './Closed.scss';
 
-const Closed = () => {
+const Closed = ({ closedText }) => {
   return (
     <div className="Closed">
-      <p>Connection Closed. Refresh to reconnect.</p>
+      <p>{closedText}</p>
     </div>
   );
 }
