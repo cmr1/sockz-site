@@ -1,7 +1,7 @@
 import React from 'react';
 import Console from './components/Console';
 // import logo from './logo.svg';
-import { Button } from 'reactstrap';
+// import { Button } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
@@ -18,7 +18,6 @@ const App = () => {
         >
           View on GitHub
         </a>
-        <Button color='danger'>DANGER</Button>
         <Console />
       </header>
     </div>
