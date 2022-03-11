@@ -9,10 +9,10 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.scss';
 
-const { REACT_APP_SOCKZ_HOST = 'localhost:8080' } = process.env;
+const { REACT_APP_SOCKZ_HOST = 'localhost:4040' } = process.env;
 
-// const WSS_URL = 'wss://localhost:8080';
-// const WSS_URL = 'wss://test.sockz.io:8080';
+// const WSS_URL = 'wss://localhost:4040';
+// const WSS_URL = 'wss://test.sockz.io:4040';
 const WSS_URL = `wss://${REACT_APP_SOCKZ_HOST}`;
 const WEB_URL = `https://${REACT_APP_SOCKZ_HOST}`;
 
@@ -59,7 +59,7 @@ const App = () => {
   const [ closedText, setClosedText ] = useState('Not Connected.');
   const [ authorized, setAuthorized ] = useState(false);
   const [ consoleData, setConsoleData ] = useState('');
-  // const [ socketUrl, setSocketUrl ] = useState('wss://localhost:8080');
+  // const [ socketUrl, setSocketUrl ] = useState('wss://localhost:4040');
 
   const debug = (name: string) => (e: any) => console.debug(`DEBUG ${name}`, e);
 
