@@ -180,9 +180,10 @@ const App = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>sockz</h1>
+        <img className='App-logo' src='/img/logo.png' alt='Sockz Logo' />
+        <h1 className='App-name'>sockz</h1>
       </header>
-      <Container >
+      <Container>
         <Row>
           <Col>
             {auth && authorized ? <Console {...sendProps} /> : (

@@ -24,29 +24,33 @@
 }
 
 .App-logo {
-  height: 40vmin;
+  max-width: 50px;
   pointer-events: none;
+  animation: pulse infinite 2s linear;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
-    animation: App-logo-pulse infinite 20s linear;
+    animation: pulse infinite 2s linear;
   }
 }
 
-.App-header {
-  
+.App-name {
+  font-family: 'Syne Mono', monospace;
 }
 
 .App-link {
   color: #61dafb;
 }
 
-@keyframes App-logo-pulse {
-  from {
+@keyframes pulse {
+  0% {
     transform: scale(1);
   }
-  to {
-    transform: scale(1.5);
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1)
   }
 }
