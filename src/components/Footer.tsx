@@ -10,7 +10,7 @@ const Footer = ({ auth, authorized, updateAuth }) => {
           className="App-link"
           href="https://localhost:4040"
         >
-          Dashboard
+          &lt; back to dashboard
         </a>
       </footer>
     </div>

@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 // import logo from './logo.svg';
-import { Button, Form, FormGroup, FormText, Label, Input, Container, Row, Col } from 'reactstrap';
+import { Button, Form, FormGroup, FormText, Input, Container, Row, Col } from 'reactstrap';
 import './Login.scss';
 
-const Login = ({ updateAuth }) => {
-  const [ key, setKey ] = useState<string | null>(localStorage.getItem('clientKey'));
-  const [ cert, setCert ] = useState<string | null>(localStorage.getItem('clientCert'));
+const Login = ({ updateAuth, registerClient }) => {
+  const [ clientName, setClientName ] = useState<string | null>(null);
+  const [ clientPassword, setClientPassword ] = useState<string | null>(null);
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
 
-    if (key && cert) {
-      localStorage.setItem('clientKey', key);
-      localStorage.setItem('clientCert', cert);
+    console.log('Register client with', { clientName, clientPassword });
+    const [ok, auth] = await registerClient(clientName, clientPassword);
 
-      updateAuth([key,cert].map(window.btoa).join(':'));
+    if (ok && auth) {
+      sessionStorage.setItem('auth', auth);
+      updateAuth(auth);
     }
 
     return false;
@@ -22,50 +23,35 @@ const Login = ({ updateAuth }) => {
 
   return (
     <div className="Login">
-      <header>Login with client cert + key</header>
       <Form id='LoginForm' className='Form' onSubmit={onSubmit}>
         <Container>
           <Row>
-            <Col>
+            <Col sm={{ size: 4, offset: 4 }}>
               <FormGroup>
-                <Label for='clientKey'>
-                  Client Key
-                </Label>
                 <Input
-                  id='clientKey'
-                  name='clientKey'
-                  type='textarea'
-                  defaultValue={key || ''}
-                  placeholder='PASTE KEY HERE'
-                  onChange={(e) => setKey(e.target.value)}
+                  id='clientName'
+                  name='clientName'
+                  type='text'
+                  placeholder='Fred Flinstone'
+                  onChange={(e) => setClientName(e.target.value)}
                 />
                 <FormText>
-                  Paste client key above (PEM format)
+                  Register a new session with this Client Name
                 </FormText>
               </FormGroup>
-            </Col>
-            <Col>
               <FormGroup>
-                <Label for='clientCert'>
-                  Client Cert
-                </Label>
                 <Input
-                  id='clientCert'
-                  name='clientCert'
-                  type='textarea'
-                  defaultValue={cert || ''}
-                  placeholder='PASTE CERT HERE'
-                  onChange={(e) => setCert(e.target.value)}
+                  id='clientPassword'
+                  name='clientPassword'
+                  type='password'
+                  placeholder='Client Password'
+                  onChange={(e) => setClientPassword(e.target.value)}
                 />
                 <FormText>
-                  Paste client certificate above (PEM format)
+                  Set a password for this session
                 </FormText>
               </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Button block type='submit' color='success'>Authorize Client</Button>
+              <Button block type='submit' color='success'>New Client Session</Button>
             </Col>
           </Row>
         </Container>

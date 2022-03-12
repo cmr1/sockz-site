@@ -61,8 +61,33 @@ async function healthy(): Promise<[boolean, string, string?]> {
       // TODO: WTF why dis no work?
       return [false, err['message'], err['error']];
     } else {
+      console.warn(err);
       return [false, err as string];
     }
+  }
+}
+
+async function registerClient(clientName: string, clientPassword: string): Promise<[boolean,string]> {
+  try {
+    const res = await fetchWithTimeout(`${WEB_URL}/api/client/register`, {
+      method: 'POST',
+      timeout: 5000,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token()}`
+      },
+      body: JSON.stringify({
+        clientName,
+        clientPassword
+      })
+    });
+    const data = await res.json();
+    console.debug('Authenticate', data);
+    return [res.status < 400, data.auth];
+  } catch (err) {
+    console.warn(err);
+    return [false, err as string];
   }
 }
 
@@ -70,7 +95,6 @@ const App = () => {
   // TODO: Set in state and allow dynamic change/reconnect to another host?
   // const [ host, setHost ] = useState(REACT_APP_SOCKZ_HOST);
   const [ auth, setAuth ] = useState<string | null>(null);
-  // const [ auth, setAuth ] = useState(localStorage.getItem('auth'));
   const [ alerts, setAlerts ] = useState<AppAlert[]>([]);
   const [ closed, setClosed ] = useState(true);
   const [ closedText, setClosedText ] = useState('Not Connected.');
@@ -120,8 +144,6 @@ const App = () => {
     }]);
 
     const [alive, message, title] = await healthy();
-
-    console.log('healthy ret', { alive, message, title });
 
     if (!alive) {
       setAuth(null);
@@ -199,8 +221,9 @@ const App = () => {
 
 
   const updateAuth = (auth: string) => {
+    console.log('updateAuth', auth);
     setAuth(auth);
-    // localStorage.setItem('auth', auth);
+    sessionStorage.setItem('auth', auth);
   };
 
   const authorize = useCallback(() => {
@@ -214,7 +237,8 @@ const App = () => {
     updateAuth,
     sendMessage,
     consoleData,
-    setConsoleData
+    setConsoleData,
+    registerClient
   };
 
   useEffect(() => {
@@ -222,6 +246,16 @@ const App = () => {
       authorize();
     }
   }, [ auth, authorize ]);
+
+  // useEffect(() => {
+  //   const clientAuth = async () => {
+  //     const data = await registerClient();
+
+  //     console.log('useEffect.clientAuth.registerClient()', data);
+  //   };
+
+  //   clientAuth();
+  // }, []);
 
   return (
     <div className="App">
