@@ -10,11 +10,10 @@ const Login = ({ updateAuth, registerClient }) => {
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    console.log('Register client with', { clientName, clientPassword });
     const [ok, auth] = await registerClient(clientName, clientPassword);
 
     if (ok && auth) {
-      sessionStorage.setItem('auth', auth);
+      localStorage.setItem('auth', auth);
       updateAuth(auth);
     }
 
@@ -26,7 +25,7 @@ const Login = ({ updateAuth, registerClient }) => {
       <Form id='LoginForm' className='Form' onSubmit={onSubmit}>
         <Container>
           <Row>
-            <Col sm={{ size: 4, offset: 4 }}>
+            <Col lg={{ size: 4, offset: 4 }} md={{ size: 6, offset: 3 }}>
               <FormGroup>
                 <Input
                   id='clientName'
@@ -39,7 +38,7 @@ const Login = ({ updateAuth, registerClient }) => {
                   Register a new session with this Client Name
                 </FormText>
               </FormGroup>
-              <FormGroup>
+              {/* <FormGroup>
                 <Input
                   id='clientPassword'
                   name='clientPassword'
@@ -50,7 +49,7 @@ const Login = ({ updateAuth, registerClient }) => {
                 <FormText>
                   Set a password for this session
                 </FormText>
-              </FormGroup>
+              </FormGroup> */}
               <Button block type='submit' color='success'>New Client Session</Button>
             </Col>
           </Row>

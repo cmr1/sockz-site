@@ -42,7 +42,7 @@ async function fetchWithTimeout(resource, options: fetchWithTimeoutOptions = {})
   return response;
 }
 
-const token = (token?: string) => token ? sessionStorage.setItem('token', token) : sessionStorage.getItem('token');
+const token = (token?: string) => token ? localStorage.setItem('token', token) : localStorage.getItem('token');
 
 async function healthy(): Promise<[boolean, string, string?]> {
   try {
@@ -135,10 +135,20 @@ const App = () => {
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
+  const StatusIcon = () => {
+    if (/open/i.test(connectionStatus)) {
+      return <span>✅</span>;
+    } else if (/closed/i.test(connectionStatus)) {
+      return <span>❌</span>
+    } else {
+      return <Spinner size='sm'>Loading...</Spinner>;
+    }
+  };
+
   const healthCheck = useCallback(async () => {
     setAlerts([{
       header: connectionStatus,
-      icon: <Spinner size='sm'>Loading...</Spinner>,
+      icon: <StatusIcon />,
       body: `Waiting`,
       color: 'warning'
     }]);
@@ -156,13 +166,13 @@ const App = () => {
         color: 'danger'
       }])
     } else {
-      setClosed(false);
-      setAlerts([{
-        header: title || 'OK',
-        icon: <span>✅</span>,
-        body: message,
-        color: 'success'
-      }]);
+      setClosed(/closed/i.test(connectionStatus));
+      // setAlerts([{
+      //   header: title || 'OK',
+      //   icon: <span>✅</span>,
+      //   body: message,
+      //   color: 'success'
+      // }]);
     }
   }, [ connectionStatus ]);
 
@@ -171,8 +181,6 @@ const App = () => {
   }, [ healthCheck ]);
 
   useEffect(() => {
-    console.log('App.useEffect', window.location);
-
     if (window.location.search) {
       const params: { token?: string } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
       console.debug('Authenticating:', params);
@@ -186,10 +194,6 @@ const App = () => {
       window.location.replace('/');
     }
   }, []);
-
-  // useEffect(() => {
-  //   console.log('App.useEffect searchParams', searchParams);
-  // }, [ searchParams ]);
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -206,7 +210,7 @@ const App = () => {
           body: lastMessage.data,
           color: 'info'
         }]);
-      } else if (/^(Unauthorized|Invalid)/i.test(data)) {
+      } else if (/^(Error|Invalid)/i.test(data)) {
         setAlerts(prev => prev.concat([{
           header: 'Error!',
           icon: <span>🔥</span>,
@@ -221,9 +225,8 @@ const App = () => {
 
 
   const updateAuth = (auth: string) => {
-    console.log('updateAuth', auth);
     setAuth(auth);
-    sessionStorage.setItem('auth', auth);
+    localStorage.setItem('auth', auth);
   };
 
   const authorize = useCallback(() => {
@@ -246,16 +249,6 @@ const App = () => {
       authorize();
     }
   }, [ auth, authorize ]);
-
-  // useEffect(() => {
-  //   const clientAuth = async () => {
-  //     const data = await registerClient();
-
-  //     console.log('useEffect.clientAuth.registerClient()', data);
-  //   };
-
-  //   clientAuth();
-  // }, []);
 
   return (
     <div className="App">
