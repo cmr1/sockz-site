@@ -23,14 +23,14 @@
   right: 25px;
 }
 
-/* .App-logo {
+.App-logo {
   height: 40vmin;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+    animation: App-logo-pulse infinite 20s linear;
   }
 }
 
@@ -42,11 +42,11 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
+@keyframes App-logo-pulse {
   from {
-    transform: rotate(0deg);
+    transform: scale(1);
   }
   to {
-    transform: rotate(360deg);
+    transform: scale(1.5);
   }
-} */
+}
