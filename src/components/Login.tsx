@@ -15,6 +15,7 @@ const Login = ({ updateAuth, registerClient }) => {
     if (ok && auth) {
       localStorage.setItem('auth', auth);
       updateAuth(auth);
+      setClientPassword('');
     }
 
     return false;

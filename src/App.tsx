@@ -135,17 +135,17 @@ const App = () => {
     [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
   }[readyState];
 
-  const StatusIcon = () => {
-    if (/open/i.test(connectionStatus)) {
-      return <span>✅</span>;
-    } else if (/closed/i.test(connectionStatus)) {
-      return <span>❌</span>
-    } else {
-      return <Spinner size='sm'>Loading...</Spinner>;
-    }
-  };
-
   const healthCheck = useCallback(async () => {
+    const StatusIcon = () => {
+      if (/open/i.test(connectionStatus)) {
+        return <span>✅</span>;
+      } else if (/closed/i.test(connectionStatus)) {
+        return <span>❌</span>
+      } else {
+        return <Spinner size='sm'>Loading...</Spinner>;
+      }
+    };
+
     setAlerts([{
       header: connectionStatus,
       icon: <StatusIcon />,
@@ -253,7 +253,7 @@ const App = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <img className='App-logo' src='/img/logo.png' alt='Sockz Logo' />
+        <img className='App-logo' src='/img/logo.png' alt='sockz logo' />
         <h1 className='App-name'>sockz</h1>
       </header>
       <Container>
