@@ -38,12 +38,12 @@
 .App-logo {
   max-width: 50px;
   pointer-events: none;
-  animation: pulse infinite 2s linear;
+  animation: pulse infinite 10s linear;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
-    animation: pulse infinite 2s linear;
+    animation: pulse infinite 10s linear;
   }
 }
 
