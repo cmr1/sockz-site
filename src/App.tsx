@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import qs from 'qs';
 import Closed from './components/Closed';
 import Console from './components/Console';
 import Footer from './components/Footer';
@@ -6,6 +7,7 @@ import Login from './components/Login';
 // import logo from './logo.svg';
 import { Container, Row, Col, Toast, ToastHeader, ToastBody, Spinner } from 'reactstrap';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+// import { useSearchParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.scss';
 
@@ -49,6 +51,49 @@ async function healthy() {
   }
 }
 
+async function example(token: string) {
+  try {
+    // const res = await fetchWithTimeout(`${WEB_URL}/api/example`, {
+    //   timeout: 5000,
+    //   headers: {
+    //     'Accept': 'application/json',
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer ${token}`
+    //   },
+    //   body: JSON.stringify({
+    //     some: 'data',
+    //     token,
+    //     lives: {
+    //       in: {
+    //         the: [
+    //           'nested',
+    //           'body'
+    //         ]
+    //       }
+    //     }
+    //   })
+    // });
+    const res = await fetchWithTimeout(`${WEB_URL}/api/example`, {
+      timeout: 5000,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const data = await res.json();
+
+    console.log('example data', data);
+
+    return data;
+  } catch (err) {
+
+    console.log('api err', err);
+
+    return null;
+  }
+}
+
 const App = () => {
   // TODO: Set in state and allow dynamic change/reconnect to another host?
   // const [ host, setHost ] = useState(REACT_APP_SOCKZ_HOST);
@@ -60,6 +105,7 @@ const App = () => {
   const [ authorized, setAuthorized ] = useState(false);
   const [ consoleData, setConsoleData ] = useState('');
   // const [ socketUrl, setSocketUrl ] = useState('wss://localhost:4040');
+  // const [ searchParams, setSearchParams ] = useSearchParams();
 
   const debug = (name: string) => (e: any) => console.debug(`DEBUG ${name}`, e);
 
@@ -123,7 +169,25 @@ const App = () => {
 
   useEffect(() => {
     healthCheck();
-  }, [ healthCheck ]); 
+  }, [ healthCheck ]);
+
+  useEffect(() => {
+    console.log('App.useEffect', window.location);
+
+    if (window.location.search) {
+      const params: { token?: string } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+      console.log('Searching for:', window.location.search, params);
+
+      if (params.token) {
+        console.log('Example with', params.token);
+        example(params.token);
+      }
+    }
+  }, []);
+
+  // useEffect(() => {
+  //   console.log('App.useEffect searchParams', searchParams);
+  // }, [ searchParams ]);
 
   useEffect(() => {
     if (lastMessage !== null) {
