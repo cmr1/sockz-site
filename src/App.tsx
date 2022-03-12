@@ -22,6 +22,7 @@ interface AppAlert {
   body: string;
   icon?: string | React.ReactNode;
   header?: string;
+  color?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
 }
 
 interface fetchWithTimeoutOptions extends RequestInit {
@@ -43,7 +44,7 @@ async function fetchWithTimeout(resource, options: fetchWithTimeoutOptions = {})
 
 const token = (token?: string) => token ? sessionStorage.setItem('token', token) : sessionStorage.getItem('token');
 
-async function healthy(): Promise<[boolean, string]> {
+async function healthy(): Promise<[boolean, string, string?]> {
   try {
     const res = await fetchWithTimeout(`${WEB_URL}/health`, {
       timeout: 5000,
@@ -56,7 +57,12 @@ async function healthy(): Promise<[boolean, string]> {
     const data = await res.json();
     return [res.status < 400, data.message];
   } catch (err) {
-    return [false, err instanceof Error ? err.message : err as string];
+    if (err && typeof err === 'object') {
+      // TODO: WTF why dis no work?
+      return [false, err['message'], err['error']];
+    } else {
+      return [false, err as string];
+    }
   }
 }
 
@@ -109,26 +115,31 @@ const App = () => {
     setAlerts([{
       header: connectionStatus,
       icon: <Spinner size='sm'>Loading...</Spinner>,
-      body: `Waiting for: <span class="badge bg-primary">${REACT_APP_SOCKZ_HOST}</span>`
+      body: `Waiting`,
+      color: 'warning'
     }]);
 
-    const [alive, message] = await healthy();
+    const [alive, message, title] = await healthy();
+
+    console.log('healthy ret', { alive, message, title });
 
     if (!alive) {
       setAuth(null);
       setAuthorized(false);
       setClosed(true);
       setAlerts([{
-        header: `Server failed health check`,
+        header: title || 'Error',
         icon: <span>💔</span>,
-        body: `<span class="badge bg-danger">${REACT_APP_SOCKZ_HOST}</span> ${message}`
+        body: message,
+        color: 'danger'
       }])
     } else {
       setClosed(false);
       setAlerts([{
-        header: `Connection authorized`,
+        header: title || 'OK',
         icon: <span>✅</span>,
-        body: `<span class="badge bg-primary">${REACT_APP_SOCKZ_HOST}</span> ${message}`
+        body: message,
+        color: 'success'
       }]);
     }
   }, [ connectionStatus ]);
@@ -170,13 +181,15 @@ const App = () => {
         setAlerts([{
           header: 'Welcome!',
           icon: <span>👤</span>,
-          body: lastMessage.data
+          body: lastMessage.data,
+          color: 'info'
         }]);
       } else if (/^(Unauthorized|Invalid)/i.test(data)) {
         setAlerts(prev => prev.concat([{
           header: 'Error!',
           icon: <span>🔥</span>,
-          body: lastMessage.data
+          body: lastMessage.data,
+          color: 'danger'
         }]));
       } else {
         setConsoleData(prev => prev + lastMessage.data);
@@ -234,7 +247,8 @@ const App = () => {
         {alerts.map((alert, index) => (
           <Toast key={index}>
             <ToastHeader icon={alert.icon}>
-              {alert.header || connectionStatus}
+              <span dangerouslySetInnerHTML={{ __html: (alert.header || connectionStatus) }}></span>
+              <span className={`badge bg-${alert.color || 'primary'}`}>{REACT_APP_SOCKZ_HOST}</span>
             </ToastHeader>
             <ToastBody className='text-secondary'>
               <div dangerouslySetInnerHTML={{ __html: alert.body }}></div>
