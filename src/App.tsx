@@ -4,17 +4,13 @@ import Closed from './components/Closed';
 import Console from './components/Console';
 import Footer from './components/Footer';
 import Login from './components/Login';
-// import logo from './logo.svg';
 import { Container, Row, Col, Toast, ToastHeader, ToastBody, Spinner } from 'reactstrap';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-// import { useSearchParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.scss';
 
 const { REACT_APP_SOCKZ_HOST = 'localhost:4040' } = process.env;
 
-// const WSS_URL = 'wss://localhost:4040';
-// const WSS_URL = 'wss://test.sockz.io:4040';
 const WSS_URL = `wss://${REACT_APP_SOCKZ_HOST}`;
 const WEB_URL = `https://${REACT_APP_SOCKZ_HOST}`;
 
@@ -92,16 +88,12 @@ async function registerClient(clientName: string, clientPassword: string): Promi
 }
 
 const App = () => {
-  // TODO: Set in state and allow dynamic change/reconnect to another host?
-  // const [ host, setHost ] = useState(REACT_APP_SOCKZ_HOST);
   const [ auth, setAuth ] = useState<string | null>(null);
   const [ alerts, setAlerts ] = useState<AppAlert[]>([]);
   const [ closed, setClosed ] = useState(true);
   const [ closedText, setClosedText ] = useState('Not Connected.');
   const [ authorized, setAuthorized ] = useState(false);
   const [ consoleData, setConsoleData ] = useState('');
-  // const [ socketUrl, setSocketUrl ] = useState('wss://localhost:4040');
-  // const [ searchParams, setSearchParams ] = useSearchParams();
 
   const debug = (name: string) => (e: any) => console.debug(`DEBUG ${name}`, e);
 
@@ -167,12 +159,6 @@ const App = () => {
       }])
     } else {
       setClosed(/closed/i.test(connectionStatus));
-      // setAlerts([{
-      //   header: title || 'OK',
-      //   icon: <span>✅</span>,
-      //   body: message,
-      //   color: 'success'
-      // }]);
     }
   }, [ connectionStatus ]);
 
