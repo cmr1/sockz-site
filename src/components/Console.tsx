@@ -1,17 +1,35 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import './Console.scss';
 
-const Console = () => {
+const Console = ({ consoleData, sendMessage, setConsoleData }) => {
   const ref = useRef<HTMLPreElement>(null);
   const [ buff, setBuff ] = useState<string[]>([]);
   const [ active, setActive ] = useState(false);
-  // TODO: Remove test prompt
-  const [ content, setContent ] = useState('$ ');
 
-  const remove = (num?: number) => setContent((current) => current.slice(0, num || -1));
-  const append = (data: string) => setContent((current) => current + data);
+  const remove = useCallback((num?: number) => {
+    setConsoleData((current) => current.slice(0, num || -1));
+  }, [ setConsoleData ]);
+
+  const append = useCallback((data: string) => {
+    setConsoleData((current) => current + data)
+  }, [ setConsoleData ]);
+
   const activate = () => setActive(true);
   const deactivate = () => setActive(false);
+
+  function scroll() {
+    const elem = document.getElementById('console');
+
+    if (elem) {
+      elem.scrollTop = elem.scrollHeight;
+    } else {
+      console.warn('Cannot find #console to scroll to');
+    }
+  }
+
+  useEffect(() => {
+    scroll();
+  }, [ consoleData ]);
 
   useEffect(() => {
     // Triggered when use leaves page/tab
@@ -62,7 +80,7 @@ const Console = () => {
         }
         break;
     }
-  }, [ buff ]);
+  }, [ buff, append ]);
 
   const handleKey = useCallback((event: KeyboardEvent) => {
     switch (event.key) {
@@ -74,9 +92,10 @@ const Console = () => {
       //   break;
       case 'Enter':
         console.debug('Send cmd', buff.join(''));
-        // TODO: Remove test prompt suffix
-        append(`\r\n$ `);
+        sendMessage(buff.join(''));
+        append(`\r\n`);
         setBuff([]);
+        scroll();
         break;
       case 'Backspace':
         if (buff.length) {
@@ -95,7 +114,7 @@ const Console = () => {
         }
         break;
     }
-  }, [ buff, handleSpecialKey ]);
+  }, [ buff, sendMessage, append, remove, handleSpecialKey ]);
 
   useEffect(() => {
     if (active) {
@@ -111,7 +130,7 @@ const Console = () => {
 
   return (
     <div className={`Console ${active ? 'active' : ''}`}>
-      <pre ref={ref} onClick={() => setActive(true)} dangerouslySetInnerHTML={{ __html: content }}></pre>
+      <pre id='console' ref={ref} onClick={() => setActive(true)} dangerouslySetInnerHTML={{ __html: consoleData }}></pre>
     </div>
   );
 }
