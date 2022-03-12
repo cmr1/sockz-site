@@ -41,56 +41,22 @@ async function fetchWithTimeout(resource, options: fetchWithTimeoutOptions = {})
   return response;
 }
 
-async function healthy() {
-  try {
-    const res = await fetchWithTimeout(`${WEB_URL}/health`, { timeout: 5000 });
-    const data = await res.json();
-    return !!data;
-  } catch (err) {
-    return false;
-  }
-}
+const token = (token?: string) => token ? sessionStorage.setItem('token', token) : sessionStorage.getItem('token');
 
-async function example(token: string) {
+async function healthy(): Promise<[boolean, string]> {
   try {
-    // const res = await fetchWithTimeout(`${WEB_URL}/api/example`, {
-    //   timeout: 5000,
-    //   headers: {
-    //     'Accept': 'application/json',
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${token}`
-    //   },
-    //   body: JSON.stringify({
-    //     some: 'data',
-    //     token,
-    //     lives: {
-    //       in: {
-    //         the: [
-    //           'nested',
-    //           'body'
-    //         ]
-    //       }
-    //     }
-    //   })
-    // });
-    const res = await fetchWithTimeout(`${WEB_URL}/api/example`, {
+    const res = await fetchWithTimeout(`${WEB_URL}/health`, {
       timeout: 5000,
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token()}`
       }
     });
     const data = await res.json();
-
-    console.log('example data', data);
-
-    return data;
+    return [res.status < 400, data.message];
   } catch (err) {
-
-    console.log('api err', err);
-
-    return null;
+    return [false, err instanceof Error ? err.message : err as string];
   }
 }
 
@@ -146,7 +112,7 @@ const App = () => {
       body: `Waiting for: <span class="badge bg-primary">${REACT_APP_SOCKZ_HOST}</span>`
     }]);
 
-    const alive = await healthy();
+    const [alive, message] = await healthy();
 
     if (!alive) {
       setAuth(null);
@@ -155,14 +121,14 @@ const App = () => {
       setAlerts([{
         header: `Server failed health check`,
         icon: <span>💔</span>,
-        body: `<span class="badge bg-danger">${REACT_APP_SOCKZ_HOST}</span> is not responding`
+        body: `<span class="badge bg-danger">${REACT_APP_SOCKZ_HOST}</span> ${message}`
       }])
     } else {
       setClosed(false);
       setAlerts([{
-        header: `Server is running`,
+        header: `Connection authorized`,
         icon: <span>✅</span>,
-        body: `<span class="badge bg-primary">${REACT_APP_SOCKZ_HOST}</span> is running`
+        body: `<span class="badge bg-primary">${REACT_APP_SOCKZ_HOST}</span> ${message}`
       }]);
     }
   }, [ connectionStatus ]);
@@ -176,12 +142,15 @@ const App = () => {
 
     if (window.location.search) {
       const params: { token?: string } = qs.parse(window.location.search, { ignoreQueryPrefix: true });
-      console.log('Searching for:', window.location.search, params);
+      console.debug('Authenticating:', params);
 
       if (params.token) {
-        console.log('Example with', params.token);
-        example(params.token);
+        token(params.token);
+      } else {
+        console.debug('WHy u sending deeees parameeeterrsss?', params);
       }
+
+      window.location.replace('/');
     }
   }, []);
 

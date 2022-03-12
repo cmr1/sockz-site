@@ -8,11 +8,9 @@ const Footer = ({ auth, authorized, updateAuth }) => {
         {/* {auth && authorized && <Button color='warning' onClick={() => updateAuth(null)}>Logout</Button>} */}
         <a
           className="App-link"
-          href="https://github.com/cmr1/ts-sockz#ts-sockz"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="https://localhost:4040"
         >
-          View on GitHub
+          Dashboard
         </a>
       </footer>
     </div>
